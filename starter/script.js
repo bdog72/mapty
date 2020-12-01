@@ -9,6 +9,53 @@ const countriesContainer = document.querySelector('.countries');
 
 ///////////////////////////////////////
 
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+};
+
+const getJSON = function (url, errorMsg = 'Something went wrong') {
+  return fetch(url).then(response => {
+    if (!response.ok) {
+      throw new Error(`${errorMsg} (${response.status})`);
+    }
+
+    return response.json();
+  });
+};
+
+const getCountryData = function (country) {
+  getJSON(
+    `https://restcountries.eu/rest/v2/name/${country}`,
+    'Country Not Found'
+  )
+    .then(data => {
+      renderCountry(data[0]);
+      const neighbour = data[0].borders[0];
+
+      if (!neighbour) throw new Error('No Neighbor Found');
+
+      // Country 2
+      return getJSON(
+        `https://restcountries.eu/rest/v2/alpha/${neighbour}`,
+        'Country Not Found'
+      );
+    })
+    .then(data => {
+      renderCountry(data, 'neighbour');
+    })
+    .catch(err => {
+      console.error(`${err}`);
+      renderError(`Something went wrong -- ${err.message} -- Try again Bozo`);
+    })
+    .finally(() => {
+      countriesContainer.style.opacity = 1;
+    });
+};
+
+btn.addEventListener('click', function () {
+  getCountryData('usa');
+});
+
 const renderCountry = function (data, className = '') {
   const html = `
   <article class="country ${className}">
@@ -25,44 +72,13 @@ const renderCountry = function (data, className = '') {
   </article>
 `;
   countriesContainer.insertAdjacentHTML('beforeend', html);
-  countriesContainer.style.opacity = 1;
 };
 
-const request = fetch(`https://restcountries.eu/rest/v2/name/usa`);
-console.log(request);
-
-// renderCountry();
-
-// const getCountryAndNeighbor = function (country) {
-//   // Ajax call country 1
-//   const request = new XMLHttpRequest();
-//   request.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
-//   request.send();
-
-//   request.addEventListener('load', function () {
-//     const [data] = JSON.parse(this.responseText);
-//     console.log(data);
-
-//     // Render country 1
-//     renderCountry(data);
-
-//     // Get neighbor country
-//     const [neighbor] = data.borders;
-
-//     if (!neighbor) return;
-
-//     // Ajax call country 2
-//     const request2 = new XMLHttpRequest();
-//     request2.open('GET', `https://restcountries.eu/rest/v2/alpha/${neighbor}`);
-//     request2.send();
-
-//     request2.addEventListener('load', function () {
-//       const data2 = JSON.parse(this.responseText);
-//       console.log(data2);
-
-//       renderCountry(data2, 'neighbour');
-//     });
-//   });
-// };
-
-// getCountryAndNeighbor('usa');
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+//////////////////////////////////////////////
+//////////////////////////////////////////////

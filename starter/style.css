@@ -116,6 +116,12 @@ body {
   cursor: pointer;
 }
 
+/* .btn-country:focus {
+  outline: none;
+  background-color: blue;
+  opacity: 0.5;
+} */
+
 .images {
   display: flex;
 }
